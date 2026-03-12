@@ -4,5 +4,5 @@ public enum StatusTask
 {
     New,
     InProgress,
-    Done
+    Done 
 }

@@ -20,7 +20,8 @@ public class ProjectTask
 
     public ProjectTask(string name, string? description, DateTime? dateTime, Guid projectId)
     {
-        Validate(name);
+        ValidateName(name);
+        ValidateDescription(description);
 
         Id = Guid.NewGuid();
 
@@ -33,10 +34,35 @@ public class ProjectTask
 
         CreatedAt = DateTime.UtcNow;
     }
+    public void UpdateStatus(StatusTask status)
+    {
+        Status = status;
+    }
 
-    private void Validate(string name)
+    public void UpdateName(string name)
+    {
+        ValidateName(name);
+        Name = name;
+    }
+
+    public void UpdateDescription(string? description)
+    {
+        ValidateDescription(description);
+        Description = description;
+    }
+    
+    private void ValidateName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Task name is required", nameof(name));
+
+        if (name.Length > 128)
+            throw new ArgumentException("Project name is too long", nameof(name));
+    }
+
+    private void ValidateDescription(string? description)
+    {
+        if (description?.Length > 1024)
+            throw new ArgumentException("Description is too long", nameof(description));
     }
 }
