@@ -72,9 +72,7 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapRegistrationEndpoints();
-        app.MapLoginEndpoints();
-        app.MapLogoutEndpoints();
+        app.MapAuthEndpoints();
         
         app.MapGet("/profile", [Authorize] async (HttpContext http, UserManager < ApplicationUser> userManager) =>
         {
