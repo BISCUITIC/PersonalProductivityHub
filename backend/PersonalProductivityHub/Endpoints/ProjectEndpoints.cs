@@ -54,6 +54,9 @@ public static class ProjectEndpoints
 
         Project? project = await repository.GetByUserAsync(id, userId.Value);
 
+        if(project is null)
+            return Results.NotFound();
+
         return Results.Ok(project);
     }
 
