@@ -10,7 +10,7 @@ namespace Infrastructure.Data;
 public class ApplicationContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
 {
     public DbSet<Project> Projects { get; set; } = null!;
-    public DbSet<ProjectTask> ProjectTasks { get; set; } = null!;
+    public DbSet<Domain.Entities.Task> ProjectTasks { get; set; } = null!;
 
     public ApplicationContext(DbContextOptions<ApplicationContext> options)
          : base(options)

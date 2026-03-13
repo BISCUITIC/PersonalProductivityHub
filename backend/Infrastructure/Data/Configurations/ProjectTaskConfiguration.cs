@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configurations;
 
-internal class ProjectTaskConfiguration : IEntityTypeConfiguration<ProjectTask>
+internal class ProjectTaskConfiguration : IEntityTypeConfiguration<Domain.Entities.Task>
 {
-    public void Configure(EntityTypeBuilder<ProjectTask> builder)
+    public void Configure(EntityTypeBuilder<Domain.Entities.Task> builder)
     {
         builder.ToTable("Tasks");
 
