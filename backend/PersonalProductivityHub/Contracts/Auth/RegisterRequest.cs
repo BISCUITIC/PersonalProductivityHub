@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PersonalProductivityHub.Contracts;
+namespace PersonalProductivityHub.Contracts.Auth;
 
-public record RegisterRequest(
+public sealed record RegisterRequest(
     [Required, StringLength(128)]
     string UserName, 
     [Required, EmailAddress]

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PersonalProductivityHub.Contracts;
+namespace PersonalProductivityHub.Contracts.Auth;
 
-public record AuthResponse(
+public sealed record AuthResponse(
     [Required]
     string UserName, 
     [Required, EmailAddress]

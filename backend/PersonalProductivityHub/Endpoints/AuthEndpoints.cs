@@ -1,7 +1,7 @@
 ﻿using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Win32;
-using PersonalProductivityHub.Contracts;
+using PersonalProductivityHub.Contracts.Auth;
 
 namespace PersonalProductivityHub.Endpoints;
 
