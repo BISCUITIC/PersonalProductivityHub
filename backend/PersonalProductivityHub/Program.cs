@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using PersonalProductivityHub.Extensions;
 using PersonalProductivityHub.Contracts;
+using PersonalProductivityHub.Endpoints;
 
 namespace PersonalProductivityHub;
 
@@ -15,6 +16,7 @@ public class Program
         builder.AddDatabase();
         builder.AddIdentity();
         builder.AddSwagger();
+        builder.Services.AddProblemDetails();
 
         builder.Services.AddAuthorization();
 
@@ -62,62 +64,18 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+        else 
+        {
+            app.UseExceptionHandler();
+        }
 
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapPost("/register", async (RegisterRequest request,
-                                        UserManager<ApplicationUser> userManager) =>
-        {
-            ApplicationUser newUser = new ApplicationUser()
-            {
-                UserName = request.UserName,
-                Email = request.Email,
-            };
-
-            var register_result = await userManager.CreateAsync(newUser, request.Password);
-            
-            if (!register_result.Succeeded)
-            {
-                return Results.BadRequest(register_result.Errors.Select(errors => errors.Description));
-            }
-
-            var response = new AuthResponse(newUser.UserName, newUser.Email, newUser.CreatedAt);
-
-            return Results.Ok(response);
-        });
-
-        app.MapPost("/login", async (LoginRequest request, SignInManager<ApplicationUser> signInManager) =>
-        {
-            var result = await signInManager.PasswordSignInAsync(userName: request.UserName,
-                                                                 password: request.Password,
-                                                                 isPersistent: true,
-                                                                 lockoutOnFailure: false);
-
-            if (!result.Succeeded)
-            {
-                return Results.Unauthorized();
-            }
-            
-            var user = await signInManager.UserManager.FindByNameAsync(request.UserName);
-
-            if (user is null)
-            {
-                return Results.Unauthorized();
-            }
-
-            var response = new AuthResponse(user.UserName ?? "", user.Email ?? "", user.CreatedAt);
-
-            return Results.Ok(response);            
-        });
-
-        app.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager) =>
-        {
-            await signInManager.SignOutAsync();
-
-            return Results.Ok("Logged out");
-        });
-
+        app.MapRegistrationEndpoints();
+        app.MapLoginEndpoints();
+        app.MapLogoutEndpoints();
+        
         app.MapGet("/profile", [Authorize] async (HttpContext http, UserManager < ApplicationUser> userManager) =>
         {
             var user = await userManager.GetUserAsync(http.User);

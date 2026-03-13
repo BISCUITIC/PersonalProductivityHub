@@ -1,3 +1,10 @@
-﻿namespace PersonalProductivityHub.Contracts;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record LoginRequest(string UserName, string Password);
+namespace PersonalProductivityHub.Contracts;
+
+public record LoginRequest(
+    [Required, StringLength(128)]
+    string UserName, 
+    [Required, MinLength(6)]
+    string Password
+);

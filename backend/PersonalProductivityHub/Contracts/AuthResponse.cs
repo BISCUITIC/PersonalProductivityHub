@@ -1,3 +1,12 @@
-﻿namespace PersonalProductivityHub.Contracts;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record AuthResponse(string UserName, string Email, DateTime CreatedAt);
+namespace PersonalProductivityHub.Contracts;
+
+public record AuthResponse(
+    [Required]
+    string UserName, 
+    [Required, EmailAddress]
+    string Email, 
+    [Required]
+    DateTime CreatedAt
+);
