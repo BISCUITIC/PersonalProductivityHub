@@ -16,14 +16,15 @@ public class ProjectRepository : IProjectRepository
     public Task<List<Project>> GetAllByUserAsync(Guid userId)
     {
         return _context.Projects
-                       .Where((project) => project.UserId == userId)
+                       .Where(project => project.UserId == userId)
                        .ToListAsync();
     }
 
     public  Task<Project?> GetByUserAsync(Guid projectId, Guid userId)
     {
         return _context.Projects
-                       .FirstOrDefaultAsync((project) => project.UserId == userId && project.Id == projectId);
+                       .FirstOrDefaultAsync(project => project.UserId == userId && 
+                                                       project.Id == projectId);
     }
 
     public Task AddAsync(Project project)
