@@ -117,26 +117,20 @@ public static class ProjectTaskEndpoints
         ProjectTask? task = await taskRepository.GetByIdAsync(taskId, projectId);
         if (task is null)
             return Results.NotFound();
-        try
-        {
-            if (request.Name is not null)
-                task.UpdateName(request.Name);
+       
+        if (request.Name is not null)
+            task.UpdateName(request.Name);
 
-            if (request.Description is not null)
-                task.UpdateDescription(request.Description);
+        if (request.Description is not null)
+            task.UpdateDescription(request.Description);
 
-            if (request.Deadline.HasValue)
-                task.UpdateDeadline(request.Deadline);
+        if (request.Deadline.HasValue)
+            task.UpdateDeadline(request.Deadline);
 
-            if (request.Status.HasValue)
-                task.UpdateStatus(request.Status.Value);
+        if (request.Status.HasValue)
+            task.UpdateStatus(request.Status.Value);
 
-            await taskRepository.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            return Results.BadRequest(ex.Message);
-        }
+        await taskRepository.SaveChangesAsync();     
 
         ProjectTaskResponse response = task.ToProjectTaskResponse();
 
