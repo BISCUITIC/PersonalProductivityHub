@@ -52,7 +52,7 @@ public static class ProjectEndpoints
         if (userId is null)
             return Results.Unauthorized();
 
-        Project? project = await repository.GetByUserAsync(id, userId.Value);
+        Project? project = await repository.GetByIdAsync(id, userId.Value);
 
         if(project is null)
             return Results.NotFound();
@@ -72,7 +72,7 @@ public static class ProjectEndpoints
 
         Project project = new Project(request.Name, request.Description, userId.Value);
 
-        await repository.AddAsync(project);
+        repository.Add(project);
         await repository.SaveChangesAsync();
 
         ProjectResponse response = new ProjectResponse(project.Id,
@@ -94,7 +94,7 @@ public static class ProjectEndpoints
         if (userId is null)
             return Results.Unauthorized();
 
-        Project? project = await repository.GetByUserAsync(id, userId.Value);
+        Project? project = await repository.GetByIdAsync(id, userId.Value);
 
         if (project is null)
             return Results.NotFound();
@@ -121,12 +121,12 @@ public static class ProjectEndpoints
         if (userId is null)
             return Results.Unauthorized();
 
-        Project? project = await repository.GetByUserAsync(id, userId.Value);
+        Project? project = await repository.GetByIdAsync(id, userId.Value);
 
         if (project is null)
             return Results.NotFound();
 
-        await repository.DeleteAsync(project);
+        repository.Delete(project);
         await repository.SaveChangesAsync();       
 
         return Results.NoContent();

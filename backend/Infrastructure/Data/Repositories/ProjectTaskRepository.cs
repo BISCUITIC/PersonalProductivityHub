@@ -19,23 +19,21 @@ public class ProjectTaskRepository : IProjectTaskRepository
                        .ToListAsync();
     }
 
-    public Task<ProjectTask?> GetByProjectAsync(Guid projectTaskId, Guid projectId)
+    public Task<ProjectTask?> GetByIdAsync(Guid projectTaskId, Guid projectId)
     {
         return _context.ProjectTasks
                        .FirstOrDefaultAsync(projectTask => projectTask.Id == projectTaskId &&
                                                            projectTask.ProjectId == projectId);
     }
 
-    public Task AddAsync(ProjectTask task)
+    public void Add(ProjectTask task)
     {
-        _context.ProjectTasks.AddAsync(task);
-        return Task.CompletedTask;
+        _context.ProjectTasks.Add(task);        
     }
 
-    public Task DeleteAsync(ProjectTask task)
+    public void Delete(ProjectTask task)
     {
-        _context.ProjectTasks.Remove(task);
-        return Task.CompletedTask;
+        _context.ProjectTasks.Remove(task);       
     }
 
     public Task SaveChangesAsync()
