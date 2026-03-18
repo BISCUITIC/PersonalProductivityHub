@@ -1,5 +1,4 @@
 using Domain.Contracts;
-using Hellang.Middleware.ProblemDetails;
 using Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using PersonalProductivityHub.Endpoints;
@@ -20,19 +19,7 @@ public class Program
         builder.AddIdentity();
         builder.AddSwagger();
 
-        builder.Services.AddProblemDetails(options =>
-        {
-            options.Map<ArgumentException>((exception) =>
-            {
-                var problem = new ValidationProblemDetails
-                {
-                    Status = StatusCodes.Status400BadRequest,
-                    Title = "Invalid input",
-                };
-                problem.Errors.Add(exception.ParamName ?? "error", new[] { exception.Message });
-                return problem;
-            });
-        });
+        builder.Services.AddProblemDetails();
 
         builder.Services.AddAuthorization();
 
@@ -73,8 +60,7 @@ public class Program
         app.UseDefaultFiles();
         app.UseStaticFiles();
 
-        app.UseRouting();
-        app.UseProblemDetails();
+        app.UseRouting();        
 
         if (app.Environment.IsDevelopment())
         {
@@ -84,6 +70,8 @@ public class Program
                 options.ConfigObject.AdditionalItems["withCredentials"] = true;
             });
         }
+
+        app.UseConfiguredExceptionHandler();
 
         app.UseAuthentication();
         app.UseAuthorization();
