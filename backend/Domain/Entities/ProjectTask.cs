@@ -18,25 +18,22 @@ public class ProjectTask
 
     private ProjectTask() { }
 
-    public ProjectTask(string name, string? description, DateTime? dateTime, Guid projectId)
+    public ProjectTask(string name, string? description, DateTime? deadline, Guid projectId)
     {
         ValidateName(name);
         ValidateDescription(description);
+        ValidateDeadline(deadline);
 
         Id = Guid.NewGuid();
 
         Name = name;
         Description = description;
         Status = StatusTask.New; 
-        Deadline = dateTime;
+        Deadline = deadline;
 
         ProjectId = projectId;
 
         CreatedAt = DateTime.UtcNow;
-    }
-    public void UpdateStatus(StatusTask status)
-    {
-        Status = status;
     }
 
     public void UpdateName(string name)
@@ -50,19 +47,36 @@ public class ProjectTask
         ValidateDescription(description);
         Description = description;
     }
-    
+
+    public void UpdateStatus(StatusTask status)
+    {
+        Status = status;
+    }
+
+    public void UpdateDeadline(DateTime? deadline)
+    {
+        ValidateDeadline(deadline);
+        Deadline = deadline;
+    }
+
     private void ValidateName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Task name is required", nameof(name));
 
         if (name.Length > 128)
-            throw new ArgumentException("Project name is too long", nameof(name));
+            throw new ArgumentException("Task name is too long", nameof(name));
     }
 
     private void ValidateDescription(string? description)
     {
         if (description?.Length > 1024)
             throw new ArgumentException("Description is too long", nameof(description));
+    }
+
+    private void ValidateDeadline(DateTime? deadline)
+    {
+        if (deadline.HasValue && deadline.Value <= DateTime.UtcNow)
+            throw new ArgumentException("Deadline cannot be in the past", nameof(deadline));
     }
 }

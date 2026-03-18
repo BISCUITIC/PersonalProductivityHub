@@ -1,12 +1,7 @@
 using Domain.Contracts;
 using Infrastructure.Data.Repositories;
-using Infrastructure.Identity;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using PersonalProductivityHub.Contracts.Auth;
 using PersonalProductivityHub.Endpoints;
 using PersonalProductivityHub.Extensions;
-using PersonalProductivityHub.Extensions.WebApplicationBuilder;
 
 namespace PersonalProductivityHub;
 
@@ -17,6 +12,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+        builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
 
         builder.AddDatabase();
         builder.AddIdentity();
@@ -69,7 +65,6 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                // Разрешаем отправку cookie при тестировании
                 options.ConfigObject.AdditionalItems["withCredentials"] = true;
             });
         }
@@ -83,18 +78,7 @@ public class Program
 
         app.MapAuthEndpoints();
         app.MapProjectEndpoints();
-
-        app.MapGet("/profile", [Authorize] async (HttpContext http, UserManager<ApplicationUser> userManager) =>
-        {
-            var user = await userManager.GetUserAsync(http.User);
-
-            if (user is null)
-                return Results.Unauthorized();
-
-            var response = new AuthResponse(user.UserName ?? "", user.Email ?? "", user.CreatedAt);
-
-            return Results.Ok(response);
-        });
+        app.MapProjectTaskEndpoints();
 
         app.Run();
     }

@@ -10,11 +10,11 @@ namespace PersonalProductivityHub.Endpoints;
 
 public static class ProjectEndpoints
 {
-    private static string _baseUrl = "/projects";
+    private const string BASE_URL = "/projects";
 
     public static void MapProjectEndpoints(this WebApplication application)
     {
-        RouteGroupBuilder group = application.MapGroup(_baseUrl)
+        RouteGroupBuilder group = application.MapGroup(BASE_URL)
                                              .RequireAuthorization();
 
         group.MapGet("/", GetAllProjects);
@@ -25,10 +25,10 @@ public static class ProjectEndpoints
     }
 
     private static Guid? GetUserId(ClaimsPrincipal user)
-    {        
+    {                
         string? id = user.FindFirstValue(ClaimTypes.NameIdentifier);
-        Guid? parsedId = id is null ? null : Guid.Parse(id);
-        return parsedId;
+        bool result = Guid.TryParse(id, out Guid userId);
+        return result == true ? userId : null;
     }
 
     private static async Task<IResult> GetAllProjects(ClaimsPrincipal user,
@@ -81,7 +81,7 @@ public static class ProjectEndpoints
 
         ProjectResponse response = project.ToProjectResponse();
 
-        return Results.Created($"{_baseUrl}/{response.Id}", response);
+        return Results.Created($"/projects/{response.Id}", response);
     }
 
     private static async Task<IResult> UpdateProject(Guid id,
@@ -99,16 +99,9 @@ public static class ProjectEndpoints
         if (project is null)
             return Results.NotFound();
 
-        try
-        {
-            project.UpdateName(request.Name);
-            project.UpdateDescription(request.Description);
-            await repository.SaveChangesAsync();
-        }
-        catch (Exception ex)
-        {
-            return Results.BadRequest(new { error = ex.Message });
-        }
+        project.UpdateName(request.Name);
+        project.UpdateDescription(request.Description);
+        await repository.SaveChangesAsync();
 
         ProjectResponse response = project.ToProjectResponse();
 
