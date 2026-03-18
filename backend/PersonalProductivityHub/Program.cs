@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using PersonalProductivityHub.Contracts.Auth;
 using PersonalProductivityHub.Endpoints;
 using PersonalProductivityHub.Extensions;
+using PersonalProductivityHub.Extensions.WebApplicationBuilder;
 
 namespace PersonalProductivityHub;
 
