@@ -5,8 +5,10 @@ namespace Domain.Contracts;
 public interface IProjectRepository
 {
     public Task<List<Project>> GetAllByUserAsync(Guid userId);
-    public Task<Project?> GetByUserAsync(Guid projectId, Guid userId);
-    public Task AddAsync(Project task);
-    public Task DeleteAsync(Project task);
+    public Task<Project?> GetByIdAsync(Guid projectId, Guid userId);
+
+    public void Add(Project task);
+    public void Delete(Project task);
+
     public Task SaveChangesAsync();
 }

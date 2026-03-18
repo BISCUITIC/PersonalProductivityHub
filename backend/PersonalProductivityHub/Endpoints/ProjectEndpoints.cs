@@ -1,18 +1,18 @@
 ﻿using Domain.Contracts;
 using Domain.Entities;
-using Infrastructure.Identity;
-using Microsoft.AspNetCore.Identity;
 using PersonalProductivityHub.Contracts.Project;
+using PersonalProductivityHub.Mappings;
 using System.Security.Claims;
 
 namespace PersonalProductivityHub.Endpoints;
 
 public static class ProjectEndpoints
 {
-    private static string _baseUrl = "/projects";
+    private const string BASE_URL = "/projects";
+
     public static void MapProjectEndpoints(this WebApplication application)
     {
-        RouteGroupBuilder group = application.MapGroup(_baseUrl)
+        RouteGroupBuilder group = application.MapGroup(BASE_URL)
                                              .RequireAuthorization();
 
         group.MapGet("/", GetAllProjects);
@@ -21,80 +21,78 @@ public static class ProjectEndpoints
         group.MapPut("/{id:guid}", UpdateProject);
         group.MapDelete("/{id:guid}", DeleteProject);
     }
-    private async static Task<Guid?> GetUserIdAsync(ClaimsPrincipal user,
-                                               UserManager<ApplicationUser> userManager)
+
+    private static Guid? GetUserId(ClaimsPrincipal user)
     {
-        ApplicationUser? applicationUser = await userManager.GetUserAsync(user);
-        return applicationUser?.Id;
+        string? id = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        bool result = Guid.TryParse(id, out Guid userId);
+        return result == true ? userId : null;
     }
 
-    private async static Task<IResult> GetAllProjects(ClaimsPrincipal user,
-                                                      UserManager<ApplicationUser> userManager,
+    private static async Task<IResult> GetAllProjects(ClaimsPrincipal user,
                                                       IProjectRepository repository)
     {
-        Guid? userId = await GetUserIdAsync(user, userManager);
+        Guid? userId = GetUserId(user);
 
         if (userId is null)
             return Results.Unauthorized();
 
         List<Project> projects = await repository.GetAllByUserAsync(userId.Value);
 
-        return Results.Ok(projects);
+        List<ProjectResponse> response = projects.Select(project => project.ToProjectResponse()).ToList();
+
+        return Results.Ok(response);
     }
 
-    private async static Task<IResult> GetProject(Guid id,
+    private static async Task<IResult> GetProject(Guid id,
                                                   ClaimsPrincipal user,
-                                                  UserManager<ApplicationUser> userManager,
                                                   IProjectRepository repository)
     {
-        Guid? userId = await GetUserIdAsync(user, userManager);
+        Guid? userId = GetUserId(user);
 
         if (userId is null)
             return Results.Unauthorized();
 
-        Project? project = await repository.GetByUserAsync(id, userId.Value);
+        Project? project = await repository.GetByIdAsync(id, userId.Value);
 
-        if(project is null)
+        if (project is null)
             return Results.NotFound();
 
-        return Results.Ok(project);
+        ProjectResponse response = project.ToProjectResponse();
+
+        return Results.Ok(response);
     }
 
-    private async static Task<IResult> CreateProject(ProjectRequest request,
+    private static async Task<IResult> CreateProject(ProjectRequest request,
                                                      ClaimsPrincipal user,
-                                                     UserManager<ApplicationUser> userManager,
                                                      IProjectRepository repository)
     {
-        Guid? userId = await GetUserIdAsync(user, userManager);
+        Guid? userId = GetUserId(user);
 
         if (userId is null)
             return Results.Unauthorized();
 
         Project project = new Project(request.Name, request.Description, userId.Value);
 
-        await repository.AddAsync(project);
+        repository.Add(project);
         await repository.SaveChangesAsync();
 
-        ProjectResponse response = new ProjectResponse(project.Id,
-                                                       project.Name,
-                                                       project.Description,
-                                                       project.CreatedAt);
+        ProjectResponse response = project.ToProjectResponse();
 
-        return Results.Created($"{_baseUrl}/{project.Id}", response);
+        return Results.Created($"/projects/{response.Id}", response);
     }
 
-    private async static Task<IResult> UpdateProject(Guid id,
+    private static async Task<IResult> UpdateProject(Guid id,
                                                      ProjectRequest request,
                                                      ClaimsPrincipal user,
-                                                     UserManager<ApplicationUser> userManager,
                                                      IProjectRepository repository)
     {
-        Guid? userId = await GetUserIdAsync(user, userManager);
+        Guid? userId = GetUserId(user);
 
         if (userId is null)
             return Results.Unauthorized();
 
-        Project? project = await repository.GetByUserAsync(id, userId.Value);
+        Project? project = await repository.GetByIdAsync(id, userId.Value);
 
         if (project is null)
             return Results.NotFound();
@@ -103,31 +101,27 @@ public static class ProjectEndpoints
         project.UpdateDescription(request.Description);
         await repository.SaveChangesAsync();
 
-        ProjectResponse response = new ProjectResponse(project.Id,
-                                                       project.Name,
-                                                       project.Description,
-                                                       project.CreatedAt);
+        ProjectResponse response = project.ToProjectResponse();
 
         return Results.Ok(response);
     }
 
-    private async static Task<IResult> DeleteProject(Guid id,                                                     
+    private static async Task<IResult> DeleteProject(Guid id,
                                                      ClaimsPrincipal user,
-                                                     UserManager<ApplicationUser> userManager,
                                                      IProjectRepository repository)
     {
-        Guid? userId = await GetUserIdAsync(user, userManager);
+        Guid? userId = GetUserId(user);
 
         if (userId is null)
             return Results.Unauthorized();
 
-        Project? project = await repository.GetByUserAsync(id, userId.Value);
+        Project? project = await repository.GetByIdAsync(id, userId.Value);
 
         if (project is null)
             return Results.NotFound();
 
-        await repository.DeleteAsync(project);
-        await repository.SaveChangesAsync();       
+        repository.Delete(project);
+        await repository.SaveChangesAsync();
 
         return Results.NoContent();
     }

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PersonalProductivityHub.Contracts.Project;
+namespace PersonalProductivityHub.Contracts.ProjectTask;
 
-public sealed record class ProjectResponse
+public sealed record ProjectTaskResponse
 (
     [Required]
     Guid Id,
@@ -12,6 +12,12 @@ public sealed record class ProjectResponse
 
     [MaxLength(1024)]
     string? Description,
+
+    [Required]
+    string Status,
+
+    [Required]
+    DateTime? Deadline,
 
     [Required]
     DateTime CreatedAt

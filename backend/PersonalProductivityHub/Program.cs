@@ -1,9 +1,6 @@
 using Domain.Contracts;
 using Infrastructure.Data.Repositories;
-using Infrastructure.Identity;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using PersonalProductivityHub.Contracts.Auth;
+using Microsoft.AspNetCore.Mvc;
 using PersonalProductivityHub.Endpoints;
 using PersonalProductivityHub.Extensions;
 
@@ -16,10 +13,12 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+        builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
 
         builder.AddDatabase();
         builder.AddIdentity();
         builder.AddSwagger();
+
         builder.Services.AddProblemDetails();
 
         builder.Services.AddAuthorization();
@@ -61,39 +60,25 @@ public class Program
         app.UseDefaultFiles();
         app.UseStaticFiles();
 
-        app.UseRouting();
+        app.UseRouting();        
 
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                // Разрешаем отправку cookie при тестировании
                 options.ConfigObject.AdditionalItems["withCredentials"] = true;
             });
         }
-        else
-        {
-            app.UseExceptionHandler();
-        }
+
+        app.UseConfiguredExceptionHandler();
 
         app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapAuthEndpoints();
         app.MapProjectEndpoints();
-
-        app.MapGet("/profile", [Authorize] async (HttpContext http, UserManager<ApplicationUser> userManager) =>
-        {
-            var user = await userManager.GetUserAsync(http.User);
-
-            if (user is null)
-                return Results.Unauthorized();
-
-            var response = new AuthResponse(user.UserName ?? "", user.Email ?? "", user.CreatedAt);
-
-            return Results.Ok(response);
-        });
+        app.MapProjectTaskEndpoints();
 
         app.Run();
     }

@@ -1,6 +1,5 @@
 ﻿using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Win32;
 using PersonalProductivityHub.Contracts.Auth;
 
 namespace PersonalProductivityHub.Endpoints;
@@ -15,9 +14,9 @@ public static class AuthEndpoints
         group.MapPost("/login", Login);
         group.MapPost("/logout", Logout);
     }
-    private async static Task<IResult> Register(RegisterRequest request,
+    private static async Task<IResult> Register(RegisterRequest request,
                                                 UserManager<ApplicationUser> userManager)
-    {        
+    {
         ApplicationUser newUser = new ApplicationUser()
         {
             UserName = request.UserName,
@@ -33,10 +32,10 @@ public static class AuthEndpoints
 
         AuthResponse response = new AuthResponse(newUser.UserName, newUser.Email, newUser.CreatedAt);
 
-        return Results.Ok(response);      
+        return Results.Ok(response);
     }
 
-    private async static Task<IResult> Login(LoginRequest request, 
+    private static async Task<IResult> Login(LoginRequest request,
                                              SignInManager<ApplicationUser> signInManager)
     {
         SignInResult result = await signInManager.PasswordSignInAsync(userName: request.UserName,
@@ -58,13 +57,13 @@ public static class AuthEndpoints
 
         AuthResponse response = new AuthResponse(user.UserName ?? "", user.Email ?? "", user.CreatedAt);
 
-        return Results.Ok(response);    
+        return Results.Ok(response);
     }
 
-    private async static Task<IResult> Logout(SignInManager<ApplicationUser> signInManager) 
-    {        
+    private static async Task<IResult> Logout(SignInManager<ApplicationUser> signInManager)
+    {
         await signInManager.SignOutAsync();
 
-        return Results.Ok("Logged out");     
+        return Results.Ok("Logged out");
     }
 }
