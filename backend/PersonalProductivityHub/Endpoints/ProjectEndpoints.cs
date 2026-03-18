@@ -1,7 +1,5 @@
 ﻿using Domain.Contracts;
 using Domain.Entities;
-using Infrastructure.Identity;
-using Microsoft.AspNetCore.Identity;
 using PersonalProductivityHub.Contracts.Project;
 using PersonalProductivityHub.Mappings;
 using System.Security.Claims;
@@ -25,7 +23,7 @@ public static class ProjectEndpoints
     }
 
     private static Guid? GetUserId(ClaimsPrincipal user)
-    {                
+    {
         string? id = user.FindFirstValue(ClaimTypes.NameIdentifier);
         bool result = Guid.TryParse(id, out Guid userId);
         return result == true ? userId : null;

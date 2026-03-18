@@ -7,7 +7,7 @@ public static class ProjectTaskExtension
 {
     public static ProjectTaskResponse ToProjectTaskResponse(this ProjectTask projectTask)
     {
-        return new ProjectTaskResponse(projectTask.ProjectId,
+        return new ProjectTaskResponse(projectTask.Id,
                                        projectTask.Name,
                                        projectTask.Description,
                                        projectTask.Status.ToString(),
