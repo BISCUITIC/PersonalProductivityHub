@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data.Repositories;
 
+//TODO add AsNoTracking 
+
 public class ProjectTaskRepository : IProjectTaskRepository
 {
     private readonly ApplicationContext _context;
