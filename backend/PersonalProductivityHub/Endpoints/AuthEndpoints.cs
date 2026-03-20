@@ -4,6 +4,10 @@ using PersonalProductivityHub.Contracts.Auth;
 
 namespace PersonalProductivityHub.Endpoints;
 
+/// <summary>
+/// TODO : Add application layer for services. Use pattern Result
+/// </summary>
+
 public static class AuthEndpoints
 {
     public static void MapAuthEndpoints(this WebApplication app)
@@ -12,7 +16,7 @@ public static class AuthEndpoints
 
         group.MapPost("/register", Register);
         group.MapPost("/login", Login);
-        group.MapPost("/logout", Logout);
+        group.MapPost("/logout", Logout).RequireAuthorization();
     }
     private static async Task<IResult> Register(RegisterRequest request,
                                                 UserManager<ApplicationUser> userManager)
@@ -26,8 +30,12 @@ public static class AuthEndpoints
         IdentityResult register_result = await userManager.CreateAsync(newUser, request.Password);
 
         if (!register_result.Succeeded)
-        {
-            return Results.BadRequest(register_result.Errors.Select(errors => errors.Description));
+        {            
+            return Results.ValidationProblem(
+                   register_result.Errors
+                                  .GroupBy(error => error.Code)
+                                  .ToDictionary(group => group.Key,
+                                                group => group.Select(error => error.Description).ToArray()));
         }
 
         AuthResponse response = new AuthResponse(newUser.UserName, newUser.Email, newUser.CreatedAt);
@@ -38,24 +46,26 @@ public static class AuthEndpoints
     private static async Task<IResult> Login(LoginRequest request,
                                              SignInManager<ApplicationUser> signInManager)
     {
-        SignInResult result = await signInManager.PasswordSignInAsync(userName: request.UserName,
-                                                                      password: request.Password,
-                                                                      isPersistent: true,
-                                                                      lockoutOnFailure: false);
-
-        if (!result.Succeeded)
-        {
-            return Results.Unauthorized();
-        }
-
-        ApplicationUser? user = await signInManager.UserManager.FindByNameAsync(request.UserName);
+        ApplicationUser? user = await signInManager.UserManager
+                                                   .FindByNameAsync(request.UserName);
 
         if (user is null)
         {
-            return Results.Unauthorized();
+            InvalidUsernameOrPassword();
         }
 
-        AuthResponse response = new AuthResponse(user.UserName ?? "", user.Email ?? "", user.CreatedAt);
+        SignInResult result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+
+        if (!result.Succeeded)
+        {
+            InvalidUsernameOrPassword();
+        }
+
+        await signInManager.SignInAsync(user, isPersistent: true);
+
+        AuthResponse response = new AuthResponse(user.UserName ?? "",
+                                                 user.Email ?? "",
+                                                 user.CreatedAt);
 
         return Results.Ok(response);
     }
@@ -64,6 +74,12 @@ public static class AuthEndpoints
     {
         await signInManager.SignOutAsync();
 
-        return Results.Ok("Logged out");
+        return Results.Ok();
+    }
+
+    private static IResult InvalidUsernameOrPassword()
+    {
+        return Results.Problem(title: "Invalid username or password",
+                               statusCode: StatusCodes.Status401Unauthorized);
     }
 }
