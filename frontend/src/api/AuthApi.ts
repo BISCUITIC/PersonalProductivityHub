@@ -1,34 +1,27 @@
 import { apiClient } from "./ApiClient";
-
-export interface RegisterRequest {
-    userName: string;
-    email: string;
-    password: string;
-}
-
-export interface AuthResponse {
-    userName: string;
-    email: string;
-    createdAt: string;
-}
+import type { RegisterRequest, LoginRequest, AuthResponse } from "../types/Auth"
+import { handleApiError } from "../api/HandleApiError"
 
 export async function register(registerData: RegisterRequest): Promise<AuthResponse>{
 
-    const response = await apiClient.post<AuthResponse>("/register", registerData);
-
-    return response.data;
+    try {
+        const response = await apiClient.post<AuthResponse>("/auth/register", registerData);
+        console.log(response);
+        return response.data;
+    }
+    catch (error: any) {
+        handleApiError(error);
+    }
 }
     
-export async function login(userName: string, password: string): Promise<AuthResponse> {
+export async function login(loginData: LoginRequest): Promise<AuthResponse> {
 
-    const response = await apiClient.post<AuthResponse>("/login", { userName, password });
+    try {
+        const response = await apiClient.post<AuthResponse>("/auth/login", loginData);
 
-    return response.data;
-}
-
-export async function getProfile() {
-
-    const response = await apiClient.get<AuthResponse>("/profile");
-
-    return response.data;
+        return response.data;
+    }
+    catch (error: any) {
+        handleApiError(error);
+    }
 }
