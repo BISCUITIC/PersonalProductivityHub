@@ -51,14 +51,14 @@ public static class AuthEndpoints
 
         if (user is null)
         {
-            InvalidUsernameOrPassword();
+            return InvalidUsernameOrPassword();
         }
 
         SignInResult result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
         if (!result.Succeeded)
         {
-            InvalidUsernameOrPassword();
+            return InvalidUsernameOrPassword();
         }
 
         await signInManager.SignInAsync(user, isPersistent: true);
