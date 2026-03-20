@@ -40,7 +40,11 @@ export default function LoginPage() {
             const user = await login({ userName, password });
         }
         catch (err: any) {
-            setError(err.message || "Login failed");
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError("Login failed");
+            }
         }
         finally {
             setLoading(false);

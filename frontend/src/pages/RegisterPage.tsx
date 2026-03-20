@@ -23,7 +23,7 @@ export default function RegisterPage() {
         }
 
         if (!email) {
-            setError("Password is required");
+            setError("Email is required");
             return false;
         }
 
@@ -48,9 +48,15 @@ export default function RegisterPage() {
             console.log("Registered user:", user);
 
             navigate("/login"); // после регистрации отправляем на логин
-        } catch (err: any) {
-            setError(err.message || "Registration failed");
-        } finally {
+        }
+        catch (err: any) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError("Login failed");
+            }
+        }
+        finally {
             setLoading(false);
         }
     }

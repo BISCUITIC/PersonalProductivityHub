@@ -10,7 +10,7 @@ export async function register(registerData: RegisterRequest): Promise<AuthRespo
         return response.data;
     }
     catch (error: any) {
-        handleApiError(error);
+        handleApiError(error);        
     }
 }
     
