@@ -2,7 +2,11 @@ import { useState } from "react";
 import { login } from "../api/AuthApi"
 import { useNavigate } from "react-router";
 
-export default function LoginPage() {
+interface LoginPageProps {
+    setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function LoginPage({ setIsAuthenticated } : LoginPageProps) {
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");       
 
@@ -38,6 +42,8 @@ export default function LoginPage() {
         setLoading(true);
         try {
             const user = await login({ userName, password });
+            setIsAuthenticated(true);
+            navigate("/profile");
         }
         catch (err: any) {
             if (err instanceof Error) {
