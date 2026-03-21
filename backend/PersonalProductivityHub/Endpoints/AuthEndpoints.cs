@@ -1,6 +1,8 @@
 ﻿using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using PersonalProductivityHub.Contracts.Auth;
+using PersonalProductivityHub.Mappings;
+using System.Security.Claims;
 
 namespace PersonalProductivityHub.Endpoints;
 
@@ -17,7 +19,9 @@ public static class AuthEndpoints
         group.MapPost("/register", Register);
         group.MapPost("/login", Login);
         group.MapPost("/logout", Logout).RequireAuthorization();
+        group.MapGet("/me", Me).RequireAuthorization();
     }
+
     private static async Task<IResult> Register(RegisterRequest request,
                                                 UserManager<ApplicationUser> userManager)
     {
@@ -38,7 +42,7 @@ public static class AuthEndpoints
                                                 group => group.Select(error => error.Description).ToArray()));
         }
 
-        AuthResponse response = new AuthResponse(newUser.UserName, newUser.Email, newUser.CreatedAt);
+        AuthResponse response = newUser.ToAuthResponse();
 
         return Results.Ok(response);
     }
@@ -62,10 +66,8 @@ public static class AuthEndpoints
         }
 
         await signInManager.SignInAsync(user, isPersistent: true);
-
-        AuthResponse response = new AuthResponse(user.UserName ?? "",
-                                                 user.Email ?? "",
-                                                 user.CreatedAt);
+        
+        AuthResponse response = user.ToAuthResponse();
 
         return Results.Ok(response);
     }
@@ -77,9 +79,24 @@ public static class AuthEndpoints
         return Results.Ok();
     }
 
+    private static async Task<IResult> Me(ClaimsPrincipal claimsPrincipal, UserManager<ApplicationUser> userManager)
+    {
+        ApplicationUser? user = await userManager.GetUserAsync(claimsPrincipal);
+
+        if (user is null)
+        {
+            return InvalidUsernameOrPassword();
+        }
+
+        AuthResponse response = user.ToAuthResponse();
+
+        return Results.Ok(response);
+    }
+
     private static IResult InvalidUsernameOrPassword()
     {
         return Results.Problem(title: "Invalid username or password",
                                statusCode: StatusCodes.Status401Unauthorized);
     }
+
 }
