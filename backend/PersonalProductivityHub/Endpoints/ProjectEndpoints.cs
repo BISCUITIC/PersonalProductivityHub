@@ -22,20 +22,11 @@ public static class ProjectEndpoints
         group.MapDelete("/{id:guid}", DeleteProject);
     }
 
-    private static Guid? GetUserId(ClaimsPrincipal user)
-    {
-        string? id = user.FindFirstValue(ClaimTypes.NameIdentifier);
-        bool result = Guid.TryParse(id, out Guid userId);
-        return result == true ? userId : null;
-    }
-
     private static async Task<IResult> GetAllProjects(ClaimsPrincipal user,
                                                       IProjectRepository repository)
     {
-        Guid? userId = GetUserId(user);
-
-        if (userId is null)
-            return Results.Unauthorized();
+        var (userSuccess, userId, userError) = TryGetUserId(user);
+        if (!userSuccess) return userError!;
 
         List<Project> projects = await repository.GetAllByUserAsync(userId.Value);
 
@@ -48,17 +39,13 @@ public static class ProjectEndpoints
                                                   ClaimsPrincipal user,
                                                   IProjectRepository repository)
     {
-        Guid? userId = GetUserId(user);
+        var (userSuccess, userId, userError) = TryGetUserId(user);
+        if (!userSuccess) return userError!;
 
-        if (userId is null)
-            return Results.Unauthorized();
+        var (projectSuccess, project, projectError) = await TryGetProject(id, userId.Value, repository);
+        if (!projectSuccess) return projectError!;
 
-        Project? project = await repository.GetByIdAsync(id, userId.Value);
-
-        if (project is null)
-            return Results.NotFound();
-
-        ProjectResponse response = project.ToProjectResponse();
+        ProjectResponse response = project!.ToProjectResponse();
 
         return Results.Ok(response);
     }
@@ -67,10 +54,8 @@ public static class ProjectEndpoints
                                                      ClaimsPrincipal user,
                                                      IProjectRepository repository)
     {
-        Guid? userId = GetUserId(user);
-
-        if (userId is null)
-            return Results.Unauthorized();
+        var (success, userId, error) = TryGetUserId(user);
+        if (!success) return error!;
 
         Project project = new Project(request.Name, request.Description, userId.Value);
 
@@ -87,21 +72,17 @@ public static class ProjectEndpoints
                                                      ClaimsPrincipal user,
                                                      IProjectRepository repository)
     {
-        Guid? userId = GetUserId(user);
+        var (userSuccess, userId, userError) = TryGetUserId(user);
+        if (!userSuccess) return userError!;
 
-        if (userId is null)
-            return Results.Unauthorized();
+        var (projectSuccess, project, projectError) = await TryGetProject(id, userId.Value, repository);
+        if (!projectSuccess) return projectError!;
 
-        Project? project = await repository.GetByIdAsync(id, userId.Value);
-
-        if (project is null)
-            return Results.NotFound();
-
-        project.UpdateName(request.Name);
-        project.UpdateDescription(request.Description);
+        project!.UpdateName(request.Name);
+        project!.UpdateDescription(request.Description);
         await repository.SaveChangesAsync();
 
-        ProjectResponse response = project.ToProjectResponse();
+        ProjectResponse response = project!.ToProjectResponse();
 
         return Results.Ok(response);
     }
@@ -110,19 +91,52 @@ public static class ProjectEndpoints
                                                      ClaimsPrincipal user,
                                                      IProjectRepository repository)
     {
-        Guid? userId = GetUserId(user);
+        var (userSuccess, userId, userError) = TryGetUserId(user);
+        if (!userSuccess) return userError!;
 
-        if (userId is null)
-            return Results.Unauthorized();
+        var (projectSuccess, project, projectError) = await TryGetProject(id, userId.Value, repository);
+        if (!projectSuccess) return projectError!;
 
-        Project? project = await repository.GetByIdAsync(id, userId.Value);
-
-        if (project is null)
-            return Results.NotFound();
-
-        repository.Delete(project);
+        repository.Delete(project!);
         await repository.SaveChangesAsync();
 
         return Results.NoContent();
+    } 
+
+    private static (bool, Guid?, IResult?) TryGetUserId(ClaimsPrincipal user)
+    {
+        string? id = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        bool success = Guid.TryParse(id, out Guid userId);
+
+        if (!success)
+        {
+            return (false, null, UserNotAuthenticated());
+        }
+
+        return (true, userId, null);
+    }
+
+    private static async Task<(bool, Project?, IResult?)> TryGetProject(Guid projectId, Guid userId, IProjectRepository repository)
+    {
+        Project? project = await repository.GetByIdAsync(projectId, userId);
+
+        if (project is null)
+        {
+            return (false, null, ProjectNotFound());
+        }
+
+        return (true, project, null);
+    }
+
+    private static IResult UserNotAuthenticated()
+    {
+        return Results.Problem(title: "User not authenticated",
+                               statusCode: StatusCodes.Status401Unauthorized);
+    }
+
+    private static IResult ProjectNotFound()
+    {
+        return Results.Problem(title: "Project not found",
+                               statusCode: StatusCodes.Status404NotFound);
     }
 }

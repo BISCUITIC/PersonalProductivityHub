@@ -1,6 +1,6 @@
 using Domain.Contracts;
+//using Hellang.Middleware.ProblemDetails;
 using Infrastructure.Data.Repositories;
-using Microsoft.AspNetCore.Mvc;
 using PersonalProductivityHub.Endpoints;
 using PersonalProductivityHub.Extensions;
 
@@ -20,7 +20,7 @@ public class Program
         builder.AddSwagger();
 
         builder.Services.AddProblemDetails();
-
+       
         builder.Services.AddAuthorization();
 
         builder.Services.ConfigureApplicationCookie(options =>
@@ -57,10 +57,12 @@ public class Program
 
         app.UseCors("frontend");
 
+        app.UseConfiguredExceptionHandler();
+
         app.UseDefaultFiles();
         app.UseStaticFiles();
 
-        app.UseRouting();        
+        app.UseRouting();
 
         if (app.Environment.IsDevelopment())
         {
@@ -70,8 +72,6 @@ public class Program
                 options.ConfigObject.AdditionalItems["withCredentials"] = true;
             });
         }
-
-        app.UseConfiguredExceptionHandler();
 
         app.UseAuthentication();
         app.UseAuthorization();
