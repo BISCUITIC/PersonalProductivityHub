@@ -96,7 +96,7 @@
 .project-card {
     background-color: #2c2c2c;
     padding: 1.2rem;
-    border-radius: 8px;
+    border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     transition: transform 0.2s, background-color 0.2s;
     display: flex;
@@ -120,6 +120,16 @@
     font-size: 0.95rem;
 }
 
+.project-actions {
+    padding: 15px 0px 0px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+}
+
 .view-button {
     background-color: #4a90e2;
     border: none;
@@ -131,6 +141,89 @@
     transition: background-color 0.2s;
 }
 
-    .view-button:hover {
-        background-color: #357abd;
-    }
+.view-button:hover {
+    background-color: #357abd;
+}
+
+.delete-button {
+    background-color: #c0392b;
+    color: #ffffff;    
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background-color 0.2s;
+}
+
+.delete-button:hover {
+    background-color: #962d22;
+}
+
+
+.create-button {
+    background-color: #27ae60;
+    color: #ffffff;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background-color 0.2s;
+}
+
+.create-button:hover {
+    background-color: #1e8449;
+}
+
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+
+.modal {
+    background-color: #1e1e1e;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.modal input, .modal textarea {
+    width: 100%;
+    padding: 0.4rem;
+    border-radius: 4px;
+    border: none;
+    background-color: #2c2c2c;
+    color: #fff;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.cancel-button {
+    background-color: #c0392b;
+    color: #fff;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-button:hover {
+    background-color: #962d22;
+}
