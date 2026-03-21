@@ -26,6 +26,18 @@ export async function login(loginData: LoginRequest): Promise<AuthResponse> {
     }
 }
 
+export async function logout(): Promise<AuthResponse> {
+
+    try {
+        const response = await apiClient.post<AuthResponse>("/auth/logout");
+
+        return response.data;
+    }
+    catch (error: any) {
+        handleApiError(error);
+    }
+}
+
 export async function me() : Promise<AuthResponse> {
     try {
         const response = await apiClient.get<AuthResponse>("/auth/me");

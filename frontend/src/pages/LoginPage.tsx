@@ -41,7 +41,7 @@ export default function LoginPage({ setIsAuthenticated } : LoginPageProps) {
 
         setLoading(true);
         try {
-            const user = await login({ userName, password });
+            await login({ userName, password });
             setIsAuthenticated(true);
             navigate("/profile");
         }

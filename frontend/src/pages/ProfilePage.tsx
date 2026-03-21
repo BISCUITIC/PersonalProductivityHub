@@ -1,8 +1,10 @@
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import "../styles/ProfilePage.css";
-import { GetAll, Delete, Create } from "../api/ProjectApi";
+import { getAllProjects, deleteProject, createProject } from "../api/ProjectApi";
 import type { ProjectRequest } from "../types/Project";
+import { logout } from "../api/AuthApi";
 
 interface Project {
     id: string;
@@ -10,18 +12,25 @@ interface Project {
     description: string | null;
     createdAt: Date;
 }
-export default function ProfilePage() {
+
+interface LoginPageProps {
+    setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newProjectName, setNewProjectName] = useState("");
     const [newProjectDescription, setNewProjectDescription] = useState("");
-    
+
+    const navigate = useNavigate();    
+
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const data = await GetAll();
+                const data = await getAllProjects();
                 setProjects(
                     data.map((value) => ({
                         ...value,
@@ -41,7 +50,7 @@ export default function ProfilePage() {
     const handleDelete = async (id: string) => {
         if (!window.confirm("Are you sure you want to delete this project?")) return;
         try {
-            await Delete(id);
+            await deleteProject(id);
             setProjects(projects.filter((p) => p.id !== id));
         } catch (error) {
             console.error("Failed to delete project", error);
@@ -57,7 +66,7 @@ export default function ProfilePage() {
         };
 
         try {
-            const created = await Create(request);
+            const created = await createProject(request);
             setProjects([
                 ...projects,
                 { ...created, createdAt: new Date(created.createdAt) },
@@ -71,13 +80,26 @@ export default function ProfilePage() {
         }
     };
 
+    async function handleLogout () {       
+        try {
+            console.log("ASDDD");
+            await logout();
+
+            setIsAuthenticated(false);
+            navigate("/login");
+
+        } catch (error) {
+            console.error("Failed to delete project", error);
+        }
+    };
+
     if (loading) return <div className="loading">Loading projects...</div>;
 
     return (
         <div className="profile-page">
             <header className="profile-header">
                 <h2 className="profile-logo">My Profile</h2>
-                <button className="logout-button">Logout</button>
+                <button className="logout-button" onClick={handleLogout}>Logout</button>
             </header>
 
             <div className="profile-container">
@@ -113,12 +135,15 @@ export default function ProfilePage() {
                         <h3>Create Project</h3>
                         <input
                             type="text"
+                            autoFocus
+                            maxLength={128}
                             placeholder="Project Name"
                             value={newProjectName}
                             onChange={(e) => setNewProjectName(e.target.value)}
                         />
                         <textarea 
                             rows={10}
+                            maxLength={1024}
                             style={ {resize : "none"} }
                             placeholder="Description (optional)"
                             value={newProjectDescription}

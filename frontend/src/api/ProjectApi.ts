@@ -2,7 +2,7 @@ import { apiClient } from "./ApiClient";
 import { handleApiError } from "../api/HandleApiError"
 import type { ProjectResponse, ProjectRequest } from "../types/Project";
 
-export async function GetAll(): Promise<ProjectResponse[]> {
+export async function getAllProjects(): Promise<ProjectResponse[]> {
 
     try {
         const response = await apiClient.get<ProjectResponse[]>("/projects");
@@ -14,7 +14,7 @@ export async function GetAll(): Promise<ProjectResponse[]> {
     }
 }
 
-export async function GetById(id: string): Promise<ProjectResponse> {
+export async function getProjectById(id: string): Promise<ProjectResponse> {
     try {
         const response = await apiClient.get<ProjectResponse>(`/projects/${id}`);
         return response.data;
@@ -23,7 +23,7 @@ export async function GetById(id: string): Promise<ProjectResponse> {
     }
 }
 
-export async function Create(request: ProjectRequest): Promise<ProjectResponse> {
+export async function createProject(request: ProjectRequest): Promise<ProjectResponse> {
     try {
         const response = await apiClient.post<ProjectResponse>("/projects", request);
         return response.data;
@@ -32,7 +32,7 @@ export async function Create(request: ProjectRequest): Promise<ProjectResponse> 
     }
 }
 
-export async function Update(id: string, request: ProjectRequest): Promise<ProjectResponse> {
+export async function updateProject(id: string, request: ProjectRequest): Promise<ProjectResponse> {
     try {
         const response = await apiClient.put<ProjectResponse>(`/projects/${id}`, request);
         return response.data;
@@ -41,7 +41,7 @@ export async function Update(id: string, request: ProjectRequest): Promise<Proje
     }
 }
 
-export async function Delete(id: string): Promise<void> {
+export async function deleteProject(id: string): Promise<void> {
     try {
         await apiClient.delete(`/projects/${id}`);
     } catch (error: any) {

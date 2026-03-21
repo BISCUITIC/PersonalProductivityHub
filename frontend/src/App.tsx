@@ -32,9 +32,9 @@ export default function App() {
         <BrowserRouter>
             <Routes>
                 <Route path="/register" element={<RegisterPage />} />
-                <Route path="/login" element={<LoginPage setIsAuthenticated={ setIsAuthenticated} />} />   
+                <Route path="/login" element={<LoginPage setIsAuthenticated = {setIsAuthenticated} />} />   
                 <Route path="/profile"
-                    element={<PrivateRoute element={<ProfilePage />} isAuthenticated={isAuthenticated} loading={loading} />} />
+                    element={<PrivateRoute element={<ProfilePage setIsAuthenticated = {setIsAuthenticated} />} isAuthenticated={isAuthenticated} loading={loading} />} />
             </Routes>
         </BrowserRouter>
     );
