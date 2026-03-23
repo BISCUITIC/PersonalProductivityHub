@@ -1,11 +1,10 @@
-﻿using Application.Contracts;
-using Domain.Contracts;
-using Domain.Entities;
+﻿using Application.Common.Result;
+using Application.Contracts;
+using Application.Dtos;
 using PersonalProductivityHub.Contracts.Project;
 using PersonalProductivityHub.Mappings;
+using PersonalProductivityHub.Mappings.Requests;
 using System.Security.Claims;
-using Application.Dtos;
-using Application.Common.Result;
 
 namespace PersonalProductivityHub.Endpoints;
 
@@ -35,7 +34,7 @@ public static class ProjectEndpoints
 
         return result.ToHttpResult(
                 (projects) => projects.Select(project => project.ToProjectResponse())
-        );       
+        );
     }
 
     private static async Task<IResult> GetProject(Guid id,
@@ -52,7 +51,7 @@ public static class ProjectEndpoints
         );
     }
 
-    private static async Task<IResult> CreateProject(ProjectRequest request,
+    private static async Task<IResult> CreateProject(CreateProjectRequest request,
                                                      ClaimsPrincipal user,
                                                      IProjectService service)
     {
@@ -63,20 +62,20 @@ public static class ProjectEndpoints
         Result<ProjectDto> result = await service.AddProject(userId.Value, request.ToCreateProjectDto());
 
         return result.ToHttpResult(
-            (project)=>project.ToProjectResponse(),
-            (response)=>$"/projects/{response.Id}"
-        );     
+            (project) => project.ToProjectResponse(),
+            (response) => $"/projects/{response.Id}"
+        );
     }
 
     private static async Task<IResult> UpdateProject(Guid id,
-                                                     ProjectRequest request,
+                                                     UpdateProjectRequest request,
                                                      ClaimsPrincipal user,
                                                      IProjectService service)
     {
         var (userSuccess, userId, userError) = TryGetUserId(user);
         if (!userSuccess) return userError!;
 
-        Result<ProjectDto> result = await service.UpdateProject(id, userId.Value, request.ToupdateProjectDto());
+        Result<ProjectDto> result = await service.UpdateProject(id, userId.Value, request.ToUpdateProjectDto());
         Console.WriteLine(result.Error);
         return result.ToHttpResult();
     }
@@ -88,10 +87,10 @@ public static class ProjectEndpoints
         var (userSuccess, userId, userError) = TryGetUserId(user);
         if (!userSuccess) return userError!;
 
-       Result result = await service.DeleteProject(id, userId.Value);
+        Result result = await service.DeleteProject(id, userId.Value);
 
-       return result.ToHttpResult();
-    } 
+        return result.ToHttpResult();
+    }
 
     private static (bool, Guid?, IResult?) TryGetUserId(ClaimsPrincipal user)
     {

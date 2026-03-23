@@ -3,7 +3,7 @@ using PersonalProductivityHub.Contracts.Auth;
 
 namespace PersonalProductivityHub.Mappings;
 
-public static class ApplicationUserExtension
+public static class ApplicationUserExtensions
 {
     public static AuthResponse ToAuthResponse(this ApplicationUser user)
     {
