@@ -1,3 +1,5 @@
+using Application.Contracts;
+using Application.Services;
 using Domain.Contracts;
 //using Hellang.Middleware.ProblemDetails;
 using Infrastructure.Data.Repositories;
@@ -14,6 +16,8 @@ public class Program
 
         builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
         builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
+
+        builder.Services.AddScoped<IProjectService, ProjectService>();
 
         builder.AddDatabase();
         builder.AddIdentity();
