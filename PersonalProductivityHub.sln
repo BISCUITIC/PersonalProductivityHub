@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "backend\I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "backend\Domain\Domain.csproj", "{1AF93A02-C695-A740-C744-9453045209F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{BEAEE71B-E2CC-422C-839C-E97A1C740C8E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{1AF93A02-C695-A740-C744-9453045209F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AF93A02-C695-A740-C744-9453045209F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AF93A02-C695-A740-C744-9453045209F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEAEE71B-E2CC-422C-839C-E97A1C740C8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEAEE71B-E2CC-422C-839C-E97A1C740C8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEAEE71B-E2CC-422C-839C-E97A1C740C8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEAEE71B-E2CC-422C-839C-E97A1C740C8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,6 +51,7 @@ Global
 		{6D626655-0CFB-2832-19AE-061EA69425DF} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
 		{BAC07D44-E017-A073-6C9A-C5B760BE66C1} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
 		{1AF93A02-C695-A740-C744-9453045209F4} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
+		{BEAEE71B-E2CC-422C-839C-E97A1C740C8E} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B3914190-C2D3-4CBA-BBAC-04C9730AFE09}

@@ -4,11 +4,12 @@ namespace Domain.Contracts;
 
 public interface IProjectRepository
 {
-    public Task<List<Project>> GetAllByUserAsync(Guid userId);
-    public Task<Project?> GetByIdAsync(Guid projectId, Guid userId);
+    Task<List<Project>> GetAllByUserAsync(Guid userId);
+    Task<Project?> GetByIdAsync(Guid projectId, Guid userId);
 
-    public void Add(Project task);
-    public void Delete(Project task);
+    Task<bool> ExistsByNameAsync(string name, Guid userId);
+    void Add(Project project);
+    void Delete(Project project);
 
-    public Task SaveChangesAsync();
+    Task SaveChangesAsync();
 }

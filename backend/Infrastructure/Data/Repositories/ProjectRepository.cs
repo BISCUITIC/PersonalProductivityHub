@@ -29,6 +29,12 @@ public class ProjectRepository : IProjectRepository
                                                        project.Id == projectId);
     }
 
+    public Task<bool> ExistsByNameAsync(string name, Guid userId)
+    {
+        return  _context.Projects.AnyAsync(project => project.Name == name &&
+                                                      project.UserId == userId);
+    }
+
     public void Add(Project project)
     {
         _context.Projects.Add(project);        
