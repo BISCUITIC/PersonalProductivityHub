@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data.Repositories;
 
-//TODO add AsNoTracking 
-
 public class ProjectTaskRepository : IProjectTaskRepository
 {
     private readonly ApplicationContext _context;
@@ -14,18 +12,22 @@ public class ProjectTaskRepository : IProjectTaskRepository
     {
         _context = context;
     }
-    public Task<List<ProjectTask>> GetAllByProjectAsync(Guid projectId)
+    public Task<List<ProjectTask>> GetAllByProjectAsync(Guid projectId, Guid userId)
     {
         return _context.ProjectTasks
-                       .Where(projectTask => projectTask.ProjectId == projectId)
+                       .AsNoTracking()
+                       .Where(task => task.Project.UserId == userId)
+                       .Where(task => task.ProjectId  == projectId)                       
                        .ToListAsync();
     }
 
-    public Task<ProjectTask?> GetByIdAsync(Guid projectTaskId, Guid projectId)
+    public Task<ProjectTask?> GetByIdAsync(Guid taskId, Guid projectId, Guid userId)
     {
         return _context.ProjectTasks
-                       .FirstOrDefaultAsync(projectTask => projectTask.Id == projectTaskId &&
-                                                           projectTask.ProjectId == projectId);
+                       .Where(task => task.Project.UserId == userId)
+                       .Where(task => task.ProjectId == projectId)
+                       .Where(task => task.Id == taskId)
+                       .FirstOrDefaultAsync();
     }
 
     public void Add(ProjectTask task)

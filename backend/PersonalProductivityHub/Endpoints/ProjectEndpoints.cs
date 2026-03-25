@@ -1,6 +1,6 @@
 ﻿using Application.Common.Result;
 using Application.Contracts;
-using Application.Dtos;
+using Application.Dtos.Project;
 using PersonalProductivityHub.Contracts.Project;
 using PersonalProductivityHub.Mappings;
 using PersonalProductivityHub.Mappings.Requests;
@@ -33,7 +33,7 @@ public static class ProjectEndpoints
         Result<List<ProjectDto>> result = await service.GetAllProjects(userId.Value);
 
         return result.ToHttpResult(
-                (projects) => projects.Select(project => project.ToProjectResponse())
+            (projects) => projects.Select(project => project.ToProjectResponse())
         );
     }
 
@@ -76,7 +76,7 @@ public static class ProjectEndpoints
         if (!userSuccess) return userError!;
 
         Result<ProjectDto> result = await service.UpdateProject(id, userId.Value, request.ToUpdateProjectDto());
-        Console.WriteLine(result.Error);
+
         return result.ToHttpResult();
     }
 
@@ -109,11 +109,5 @@ public static class ProjectEndpoints
     {
         return Results.Problem(title: "User not authenticated",
                                statusCode: StatusCodes.Status401Unauthorized);
-    }
-
-    private static IResult ProjectNotFound()
-    {
-        return Results.Problem(title: "Project not found",
-                               statusCode: StatusCodes.Status404NotFound);
     }
 }

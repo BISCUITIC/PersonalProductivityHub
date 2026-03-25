@@ -1,4 +1,4 @@
-﻿using Application.Dtos;
+﻿using Application.Dtos.Project;
 using Domain.Entities;
 
 namespace Application.Mappers;

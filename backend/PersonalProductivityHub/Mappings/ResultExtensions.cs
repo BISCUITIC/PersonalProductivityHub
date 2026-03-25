@@ -1,17 +1,16 @@
 ﻿using Application.Common.Result;
-using Azure;
 
 namespace PersonalProductivityHub.Mappings;
 
 public static class ResultExtensions
-{    
+{
     public static IResult ToHttpResult<T, TResult>(
         this Result<T> result,
         Func<T, TResult> map,
-        Func<TResult, string>? locationFactory = null) 
+        Func<TResult, string>? locationFactory = null)
     {
         if (result.IsSuccess)
-        {                        
+        {
             TResult response = map(result.Value!);
 
             if (locationFactory is not null)
@@ -21,12 +20,12 @@ public static class ResultExtensions
             else
             {
                 return MapSuccessT(response, null, result.ResultStatus);
-            }            
+            }
         }
 
         return MapError(result.Error, result.ResultStatus);
-    }        
-    
+    }
+
     public static IResult ToHttpResult(this Result result)
     {
         if (result.IsSuccess)
@@ -36,7 +35,7 @@ public static class ResultExtensions
 
         return MapError(result.Error, result.ResultStatus);
     }
-  
+
     private static IResult MapError(string? error, ResultStatus status)
     {
         return status switch
@@ -56,7 +55,7 @@ public static class ResultExtensions
         {
             ResultStatus.Success => Results.Ok(value),
 
-            ResultStatus.Created => location is null ? throw new InvalidOperationException("For Created need to pass locationFactory") 
+            ResultStatus.Created => location is null ? throw new InvalidOperationException("For Created need to pass locationFactory")
                                                      : Results.Created(location, value),
 
             ResultStatus.NoContent => Results.NoContent(),
