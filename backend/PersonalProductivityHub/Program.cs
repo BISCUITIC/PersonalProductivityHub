@@ -1,10 +1,10 @@
 using Application.Contracts;
 using Application.Services;
 using Domain.Contracts;
-//using Hellang.Middleware.ProblemDetails;
 using Infrastructure.Data.Repositories;
 using PersonalProductivityHub.Endpoints;
 using PersonalProductivityHub.Extensions;
+using PersonalProductivityHub.User;
 
 namespace PersonalProductivityHub;
 
@@ -18,13 +18,17 @@ public class Program
         builder.Services.AddScoped<IProjectTaskRepository, ProjectTaskRepository>();
 
         builder.Services.AddScoped<IProjectService, ProjectService>();
+        builder.Services.AddScoped<IProjectTaskService, ProjectTaskService>();
+
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
         builder.AddDatabase();
         builder.AddIdentity();
         builder.AddSwagger();
 
         builder.Services.AddProblemDetails();
-       
+
         builder.Services.AddAuthorization();
 
         builder.Services.ConfigureApplicationCookie(options =>

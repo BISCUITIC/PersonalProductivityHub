@@ -26,7 +26,12 @@ public class ProjectTaskService : IProjectTaskService
 
     public async Task<Result<List<ProjectTaskDto>>> GetAllTasks(Guid projectId)
     {
-        List<ProjectTask> tasks = await _taskRepository.GetAllByProjectAsync(projectId, _user.UserId);
+        Project? project = await _projectRepository.GetByIdAsync(projectId, _user.Id);
+
+        if (project is null)
+            return ProjectNotFound<List<ProjectTaskDto>>();
+
+        List<ProjectTask> tasks = await _taskRepository.GetAllByProjectAsync(projectId, _user.Id);
         List<ProjectTaskDto> results = tasks.Select(task => task.ToProjectTaskDto()).ToList();
 
         return Result<List<ProjectTaskDto>>.Success(results, ResultStatus.Success);
@@ -34,7 +39,7 @@ public class ProjectTaskService : IProjectTaskService
 
     public async Task<Result<ProjectTaskDto>> GetTaskById(Guid taskId, Guid projectId)
     {
-        ProjectTask? task = await _taskRepository.GetByIdAsync(taskId, projectId, _user.UserId);
+        ProjectTask? task = await _taskRepository.GetByIdAsync(taskId, projectId, _user.Id);
 
         if(task is null) 
             return NotFound<ProjectTaskDto>();
@@ -44,7 +49,8 @@ public class ProjectTaskService : IProjectTaskService
 
     public async Task<Result<ProjectTaskDto>> AddTask(Guid projectId, CreateProjectTaskDto createDto)
     {
-        Project? project = await _projectRepository.GetByIdAsync(projectId, _user.UserId);
+        Project? project = await _projectRepository.GetByIdAsync(projectId, _user.Id);
+        
         if (project is null)
             return ProjectNotFound<ProjectTaskDto>();
 
@@ -58,7 +64,7 @@ public class ProjectTaskService : IProjectTaskService
 
     public async Task<Result> DeleteTask(Guid taskId, Guid projectId)
     {
-        ProjectTask? task = await _taskRepository.GetByIdAsync(taskId, projectId, _user.UserId);
+        ProjectTask? task = await _taskRepository.GetByIdAsync(taskId, projectId, _user.Id);
 
         if (task is null)
             return NotFound();
@@ -72,7 +78,7 @@ public class ProjectTaskService : IProjectTaskService
 
     public async Task<Result<ProjectTaskDto>> UpdateTask(Guid taskId, Guid projectId, UpdateProjectTaskDto updateDto)
     {
-        ProjectTask? task = await _taskRepository.GetByIdAsync(taskId, projectId, _user.UserId);
+        ProjectTask? task = await _taskRepository.GetByIdAsync(taskId, projectId, _user.Id);
 
         if (task is null)
             return NotFound<ProjectTaskDto>();
