@@ -23,7 +23,7 @@ public class ProjectTaskRepository : IProjectTaskRepository
 
     public Task<ProjectTask?> GetByIdAsync(Guid taskId, Guid projectId, Guid userId)
     {
-        return _context.ProjectTasks
+        return _context.ProjectTasks                    
                        .Where(task => task.Project.UserId == userId)
                        .Where(task => task.ProjectId == projectId)
                        .Where(task => task.Id == taskId)
