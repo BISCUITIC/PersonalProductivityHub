@@ -68,22 +68,26 @@ API             → Endpoints, configuration, request handling
 
 ### Auth
 
-* POST `/register`
-* POST `/login`
+* POST `/auth/register`
+* POST `/auth/login`
+* POST `/auth/logout`
+* GET `/auth/me`
 
 ### Projects
 
 * GET `/projects`
 * POST `/projects`
+* GET `/projects/{id}`
 * PUT `/projects/{id}`
 * DELETE `/projects/{id}`
 
 ### Tasks
 
-* GET `/tasks`
-* POST `/tasks`
-* PUT `/tasks/{id}`
-* DELETE `/tasks/{id}`
+* GET `/projects/{projectId}/tasks`
+* POST `/projects/{projectId}/tasks`
+* GET `/projects/{projectId}/tasks/{taskId}`
+* PATCH `/projects/{projectId}/tasks/{taskId}`
+* DELETE `/projects/{projectId}/tasks/{taskId}`
 
 ---
 
