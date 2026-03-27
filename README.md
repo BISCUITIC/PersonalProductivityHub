@@ -88,7 +88,7 @@ API             → Endpoints, configuration, request handling
 ---
 
 
-## 🎯 Purpose of the Project
+## Purpose of the Project
 
 This project was created to:
 
@@ -98,6 +98,6 @@ This project was created to:
 
 ---
 
-## 📄 License
+## License
 
 MIT License
