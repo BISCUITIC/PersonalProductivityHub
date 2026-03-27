@@ -32,7 +32,7 @@ The project follows **Clean Architecture principles**, separating responsibiliti
 
 ```text
 Domain          → Core business logic (Entities, Enums, Interfaces)
-Application     → Use cases, DTOs, Services
+Application     → DTOs, Services
 Infrastructure  → Database, Repositories, Identity
 API             → Endpoints, configuration, request handling
 ```
