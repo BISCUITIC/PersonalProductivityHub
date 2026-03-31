@@ -2,10 +2,10 @@
 
 namespace PersonalProductivityHub.Contracts.Project;
 
-public sealed record class ProjectRequest
+public sealed record class UpdateProjectRequest
 (
     [Required, MaxLength(128)]
-    string Name,
+    string? Name,
 
     [MaxLength(1024)]
     string? Description

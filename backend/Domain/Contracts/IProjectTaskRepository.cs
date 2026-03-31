@@ -1,14 +1,14 @@
-﻿using Domain.Entities;
+﻿using Domain.Entities;  
 
 namespace Domain.Contracts;
 
 public interface IProjectTaskRepository
 {
-    public Task<List<ProjectTask>> GetAllByProjectAsync(Guid projectId);
-    public Task<ProjectTask?> GetByIdAsync(Guid projectTaskId, Guid projectId);
+    Task<List<ProjectTask>> GetAllByProjectAsync(Guid projectId, Guid userId);
+    Task<ProjectTask?> GetByIdAsync(Guid taskId, Guid projectId, Guid userId);
 
-    public void Add(ProjectTask task);
-    public void Delete(ProjectTask task);
+    void Add(ProjectTask task);
+    void Delete(ProjectTask task);
 
-    public Task SaveChangesAsync();
+    Task SaveChangesAsync();
 }

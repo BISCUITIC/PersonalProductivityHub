@@ -1,7 +1,9 @@
-﻿using Domain.Contracts;
-using Domain.Entities;
+﻿using Application.Common.Result;
+using Application.Contracts;
+using Application.Dtos.Project;
 using PersonalProductivityHub.Contracts.Project;
 using PersonalProductivityHub.Mappings;
+using PersonalProductivityHub.Mappings.Requests;
 using System.Security.Claims;
 
 namespace PersonalProductivityHub.Endpoints;
@@ -23,85 +25,72 @@ public static class ProjectEndpoints
     }
 
     private static async Task<IResult> GetAllProjects(ClaimsPrincipal user,
-                                                      IProjectRepository repository)
+                                                      IProjectService service)
     {
         var (userSuccess, userId, userError) = TryGetUserId(user);
         if (!userSuccess) return userError!;
 
-        List<Project> projects = await repository.GetAllByUserAsync(userId.Value);
+        Result<List<ProjectDto>> result = await service.GetAllProjects(userId.Value);
 
-        List<ProjectResponse> response = projects.Select(project => project.ToProjectResponse()).ToList();
-
-        return Results.Ok(response);
+        return result.ToHttpResult(
+            (projects) => projects.Select(project => project.ToProjectResponse())
+        );
     }
 
     private static async Task<IResult> GetProject(Guid id,
                                                   ClaimsPrincipal user,
-                                                  IProjectRepository repository)
+                                                  IProjectService service)
     {
         var (userSuccess, userId, userError) = TryGetUserId(user);
         if (!userSuccess) return userError!;
 
-        var (projectSuccess, project, projectError) = await TryGetProject(id, userId.Value, repository);
-        if (!projectSuccess) return projectError!;
+        Result<ProjectDto> result = await service.GetProjectById(id, userId.Value);
 
-        ProjectResponse response = project!.ToProjectResponse();
-
-        return Results.Ok(response);
+        return result.ToHttpResult(
+            (project) => project.ToProjectResponse()
+        );
     }
 
-    private static async Task<IResult> CreateProject(ProjectRequest request,
+    private static async Task<IResult> CreateProject(CreateProjectRequest request,
                                                      ClaimsPrincipal user,
-                                                     IProjectRepository repository)
+                                                     IProjectService service)
     {
         var (success, userId, error) = TryGetUserId(user);
         if (!success) return error!;
 
-        Project project = new Project(request.Name, request.Description, userId.Value);
 
-        repository.Add(project);
-        await repository.SaveChangesAsync();
+        Result<ProjectDto> result = await service.AddProject(userId.Value, request.ToCreateProjectDto());
 
-        ProjectResponse response = project.ToProjectResponse();
-
-        return Results.Created($"/projects/{response.Id}", response);
+        return result.ToHttpResult(
+            (project) => project.ToProjectResponse(),
+            (response) => $"/projects/{response.Id}"
+        );
     }
 
     private static async Task<IResult> UpdateProject(Guid id,
-                                                     ProjectRequest request,
+                                                     UpdateProjectRequest request,
                                                      ClaimsPrincipal user,
-                                                     IProjectRepository repository)
+                                                     IProjectService service)
     {
         var (userSuccess, userId, userError) = TryGetUserId(user);
         if (!userSuccess) return userError!;
 
-        var (projectSuccess, project, projectError) = await TryGetProject(id, userId.Value, repository);
-        if (!projectSuccess) return projectError!;
+        Result<ProjectDto> result = await service.UpdateProject(id, userId.Value, request.ToUpdateProjectDto());
 
-        project!.UpdateName(request.Name);
-        project!.UpdateDescription(request.Description);
-        await repository.SaveChangesAsync();
-
-        ProjectResponse response = project!.ToProjectResponse();
-
-        return Results.Ok(response);
+        return result.ToHttpResult();
     }
 
     private static async Task<IResult> DeleteProject(Guid id,
                                                      ClaimsPrincipal user,
-                                                     IProjectRepository repository)
+                                                     IProjectService service)
     {
         var (userSuccess, userId, userError) = TryGetUserId(user);
         if (!userSuccess) return userError!;
 
-        var (projectSuccess, project, projectError) = await TryGetProject(id, userId.Value, repository);
-        if (!projectSuccess) return projectError!;
+        Result result = await service.DeleteProject(id, userId.Value);
 
-        repository.Delete(project!);
-        await repository.SaveChangesAsync();
-
-        return Results.NoContent();
-    } 
+        return result.ToHttpResult();
+    }
 
     private static (bool, Guid?, IResult?) TryGetUserId(ClaimsPrincipal user)
     {
@@ -116,27 +105,9 @@ public static class ProjectEndpoints
         return (true, userId, null);
     }
 
-    private static async Task<(bool, Project?, IResult?)> TryGetProject(Guid projectId, Guid userId, IProjectRepository repository)
-    {
-        Project? project = await repository.GetByIdAsync(projectId, userId);
-
-        if (project is null)
-        {
-            return (false, null, ProjectNotFound());
-        }
-
-        return (true, project, null);
-    }
-
     private static IResult UserNotAuthenticated()
     {
         return Results.Problem(title: "User not authenticated",
                                statusCode: StatusCodes.Status401Unauthorized);
-    }
-
-    private static IResult ProjectNotFound()
-    {
-        return Results.Problem(title: "Project not found",
-                               statusCode: StatusCodes.Status404NotFound);
     }
 }
