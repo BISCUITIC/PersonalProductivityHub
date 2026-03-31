@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import "../styles/ProfilePage.css";
-import { getAllProjects, deleteProject, createProject } from "../api/ProjectApi";
-import type { ProjectRequest } from "../types/Project";
+import { getAllProjects, deleteProject, createProject, updateProject } from "../api/ProjectApi";
+import type { CreateProjectRequest, UpdateProjectRequest } from "../types/Project";
 import { logout } from "../api/AuthApi";
 
 interface Project {
@@ -19,11 +19,17 @@ interface LoginPageProps {
 
 export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
     const [projects, setProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(true);
-    
+    const [isLoading, setIsLoading] = useState(true);
+    const [isCreating, setIsCreating] = useState(false);
+    const [editingProject, setEditingProject] = useState<Project | null>(null);
+
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [newProjectName, setNewProjectName] = useState("");
-    const [newProjectDescription, setNewProjectDescription] = useState("");
+    const [newName, setNewName] = useState("");
+    const [newDescription, setNewDescription] = useState("");
+
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editName, setEditName] = useState("");
+    const [editDescription, setEditDescription] = useState("");
 
     const navigate = useNavigate();    
 
@@ -40,7 +46,7 @@ export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
             } catch {
                 setProjects([]);
             } finally {
-                setLoading(false);
+                setIsLoading(false);
             }
         };
 
@@ -52,18 +58,21 @@ export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
         try {
             await deleteProject(id);
             setProjects(projects.filter((p) => p.id !== id));
+
         } catch (error) {
             console.error("Failed to delete project", error);
         }
     };
     
     const handleCreate = async () => {
-        if (!newProjectName.trim()) return;
+        if (!newName.trim() || isCreating) return;
 
-        const request: ProjectRequest = {
-            name: newProjectName,
-            description: newProjectDescription || null,
+        const request: CreateProjectRequest = {
+            name: newName,
+            description: newDescription || null,
         };
+
+        setIsCreating(true);
 
         try {
             const created = await createProject(request);
@@ -72,17 +81,48 @@ export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
                 { ...created, createdAt: new Date(created.createdAt) },
             ]);
 
-            setNewProjectName("");
-            setNewProjectDescription("");
+            setNewName("");
+            setNewDescription("");
             setShowCreateModal(false);
         } catch (error) {
             console.error("Failed to create project", error);
+        } finally {
+            setIsCreating(false);
+        }
+    };
+
+    const handleUpdate = async () => {
+        if (!editingProject) return;
+
+        const request: UpdateProjectRequest = {};
+
+        if (editName !== editingProject.name) {
+            request.name = editName;
+        }
+
+        if (editDescription !== (editingProject.description ?? "")) {
+            request.description = editDescription;
+        }
+
+        try {
+            const updated = await updateProject(editingProject.id, request);            
+            setProjects(prev =>
+                prev.map(p =>
+                    p.id === editingProject.id ? { ...updated, createdAt: new Date(updated.createdAt) } : p
+                )
+            );
+
+            setEditName("");
+            setEditDescription("");
+            setEditingProject(null);
+            setShowEditModal(false);
+        } catch (error) {
+            console.error("Failed to update project", error);
         }
     };
 
     async function handleLogout () {       
-        try {
-            console.log("ASDDD");
+        try {            
             await logout();
 
             setIsAuthenticated(false);
@@ -93,7 +133,7 @@ export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
         }
     };
 
-    if (loading) return <div className="loading">Loading projects...</div>;
+    if (isLoading) return <div className="isLoading">isLoading projects...</div>;
 
     return (
         <div className="profile-page">
@@ -106,24 +146,47 @@ export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
                 <div className="projects-section">
                     <div className="projects-header">
                         <h3>My Projects</h3>
-                        <button className="create-button" onClick={() => setShowCreateModal(true)}>Create Project</button>
+                        <button className="create-button" onClick={() => setShowCreateModal(true)} disabled={isCreating}>
+                            {isCreating ? "Is creating..." : "Create project"}
+                        </button>
                     </div>
 
                     {projects.length === 0 ? (
                         <p>No projects yet</p>
                     ) : (
-                        <div className="projects-grid">
-                            {projects.map((project) => (
-                                <div key={project.id} className="project-card">
-                                    <h4>{project.name}</h4>
-                                    <p>{project.description ?? "No description"}</p>
-                                    <small>{project.createdAt.toLocaleString()}</small>
-                                    <div className="project-actions">
-                                        <button className="view-button">View</button>
-                                        <button className="delete-button" onClick={() => handleDelete(project.id)}>Delete</button>
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="projects">
+                                <div className="projects-grid">
+                                    {projects.map((project) => (
+                                        <div key={project.id} className="project-card">
+
+                                            <div className="project-info">
+                                                <h4>{project.name}</h4>
+
+                                                <p>{project.description ?? "No description"}</p>
+
+                                                <small>{project.createdAt.toLocaleString()}</small>
+                                            </div>
+
+                                            <div className="project-actions">
+                                                <button className="view-button">View</button>
+
+                                                <button className="edit-button"
+                                                    onClick={() => {
+                                                        setEditingProject(project);
+                                                        setEditName(project.name);
+                                                        setEditDescription(project.description ?? "");
+                                                        setShowEditModal(true);
+                                                    }}> Edit
+                                                </button>
+
+                                                <button className="delete-button"
+                                                    onClick={() => handleDelete(project.id)}
+                                                > Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                             </div>
                         </div>
                     )}
                 </div>
@@ -138,20 +201,48 @@ export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
                             autoFocus
                             maxLength={128}
                             placeholder="Project Name"
-                            value={newProjectName}
-                            onChange={(e) => setNewProjectName(e.target.value)}
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
                         />
                         <textarea 
                             rows={10}
                             maxLength={1024}
                             style={ {resize : "none"} }
                             placeholder="Description (optional)"
-                            value={newProjectDescription}
-                            onChange={(e) => setNewProjectDescription(e.target.value)}
+                            value={newDescription}
+                            onChange={(e) => setNewDescription(e.target.value)}
                         />
                         <div className="modal-actions">
-                            <button onClick={handleCreate} className="create-button">Create</button>
+                            <button onClick={handleCreate} className="accept-button">Create</button>
                             <button onClick={() => setShowCreateModal(false)} className="cancel-button">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showEditModal && (
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <h3>Edit Project</h3>
+                        <input
+                            type="text"
+                            maxLength={128}
+                            placeholder="Project Name"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                        />
+                        <textarea
+                            rows={10}
+                            maxLength={1024}
+                            style={{ resize: "none" }}
+                            placeholder="Description (optional)"
+                            value={editDescription}
+                            onChange={(e) => setEditDescription(e.target.value)}
+                        />
+
+                        <div className="modal-actions">
+                            <button onClick={handleUpdate} className="accept-button">Save</button>
+                            <button onClick={() => setShowEditModal(false)} className="cancel-button">Cancel</button>
                         </div>
                     </div>
                 </div>

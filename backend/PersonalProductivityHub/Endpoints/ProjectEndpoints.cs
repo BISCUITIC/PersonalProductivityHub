@@ -20,7 +20,7 @@ public static class ProjectEndpoints
         group.MapGet("/", GetAllProjects);
         group.MapGet("/{id:guid}", GetProject);
         group.MapPost("/", CreateProject);
-        group.MapPut("/{id:guid}", UpdateProject);
+        group.MapPatch("/{id:guid}", UpdateProject);
         group.MapDelete("/{id:guid}", DeleteProject);
     }
 
@@ -77,7 +77,9 @@ public static class ProjectEndpoints
 
         Result<ProjectDto> result = await service.UpdateProject(id, userId.Value, request.ToUpdateProjectDto());
 
-        return result.ToHttpResult();
+        return result.ToHttpResult(
+            (project) => project.ToProjectResponse()
+        );
     }
 
     private static async Task<IResult> DeleteProject(Guid id,

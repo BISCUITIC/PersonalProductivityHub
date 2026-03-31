@@ -1,6 +1,6 @@
 import { apiClient } from "./ApiClient";
 import { handleApiError } from "../api/HandleApiError"
-import type { ProjectResponse, ProjectRequest } from "../types/Project";
+import type { ProjectResponse, UpdateProjectRequest, CreateProjectRequest } from "../types/Project";
 
 export async function getAllProjects(): Promise<ProjectResponse[]> {
 
@@ -23,7 +23,7 @@ export async function getProjectById(id: string): Promise<ProjectResponse> {
     }
 }
 
-export async function createProject(request: ProjectRequest): Promise<ProjectResponse> {
+export async function createProject(request: CreateProjectRequest): Promise<ProjectResponse> {
     try {
         const response = await apiClient.post<ProjectResponse>("/projects", request);
         return response.data;
@@ -32,9 +32,9 @@ export async function createProject(request: ProjectRequest): Promise<ProjectRes
     }
 }
 
-export async function updateProject(id: string, request: ProjectRequest): Promise<ProjectResponse> {
+export async function updateProject(id: string, request: UpdateProjectRequest): Promise<ProjectResponse> {
     try {
-        const response = await apiClient.put<ProjectResponse>(`/projects/${id}`, request);
+        const response = await apiClient.patch<ProjectResponse>(`/projects/${id}`, request);
         return response.data;
     } catch (error: any) {
         handleApiError(error);        

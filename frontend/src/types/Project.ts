@@ -5,7 +5,12 @@ export interface ProjectResponse {
     createdAt: string;
 }
 
-export interface ProjectRequest {   
+export interface CreateProjectRequest {   
     name: string;
     description: string | null;    
+}
+
+export interface UpdateProjectRequest {
+    name?: string;
+    description?: string;
 }
