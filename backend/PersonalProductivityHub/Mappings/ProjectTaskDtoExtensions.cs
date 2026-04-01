@@ -11,7 +11,7 @@ public static class ProjectTaskDtoExtensions
         return new ProjectTaskResponse(projectDto.Id,
                                        projectDto.Name,
                                        projectDto.Description,
-                                       projectDto.Status.ToString(),
+                                       (int)projectDto.Status,
                                        projectDto.Deadline,
                                        projectDto.CreatedAt);
     }

@@ -3,6 +3,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import PrivateRoute from "./components/PrivateRoute"
 import ProfilePage from "./pages/ProfilePage"
+import ProjectDetailsPage from "./pages/ProjectDetailsPage"
 import { useState, useEffect } from "react";
 import { me } from "./api/AuthApi";
 import { useNavigate } from "react-router";
@@ -43,7 +44,13 @@ export default function App() {
             />   
             <Route path="/profile"
                 element={<PrivateRoute element={<ProfilePage setIsAuthenticated={setIsAuthenticated} />}
-                    isAuthenticated={isAuthenticated} loading={loading} />}
+                                       isAuthenticated={isAuthenticated}
+                                       loading={loading} />}
+            />
+            <Route path="/projects/:projectId"
+                element={<PrivateRoute element={<ProjectDetailsPage/>}
+                                       isAuthenticated={isAuthenticated}
+                                       loading={loading} />}
             />
         </Routes>
     );

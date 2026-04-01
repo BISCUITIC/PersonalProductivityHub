@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace PersonalProductivityHub.Contracts.ProjectTask;
 
 public sealed record UpdateProjectTaskRequest(
-    [MaxLength(128)]
+    [Required, MaxLength(128)]
     string? Name,
 
     [MaxLength(1024)]
@@ -12,5 +12,5 @@ public sealed record UpdateProjectTaskRequest(
     
     StatusTask? Status,
 
-    DateTime? Deadline
+    string? Deadline
 );

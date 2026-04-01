@@ -13,11 +13,11 @@ interface Project {
     createdAt: Date;
 }
 
-interface LoginPageProps {
+interface ProfilePageProps {
     setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
+export default function ProfilePage({ setIsAuthenticated }: ProfilePageProps) {
     const [projects, setProjects] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
@@ -168,7 +168,10 @@ export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
                                             </div>
 
                                             <div className="project-actions">
-                                                <button className="view-button">View</button>
+                                                <button className="view-button"
+                                                        onClick={()=>navigate(`/projects/${project.id}`) }
+                                                >View
+                                                </button>
 
                                                 <button className="edit-button"
                                                     onClick={() => {
@@ -176,12 +179,12 @@ export default function ProfilePage({ setIsAuthenticated }: LoginPageProps) {
                                                         setEditName(project.name);
                                                         setEditDescription(project.description ?? "");
                                                         setShowEditModal(true);
-                                                    }}> Edit
+                                                    }}>Edit
                                                 </button>
 
                                                 <button className="delete-button"
-                                                    onClick={() => handleDelete(project.id)}
-                                                > Delete
+                                                        onClick={() => handleDelete(project.id)}
+                                                >Delete
                                                 </button>
                                             </div>
                                         </div>

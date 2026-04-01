@@ -10,7 +10,7 @@ public static class ProjectTaskExtension
         return new ProjectTaskResponse(projectTask.Id,
                                        projectTask.Name,
                                        projectTask.Description,
-                                       projectTask.Status.ToString(),
+                                       (int)projectTask.Status,
                                        projectTask.Deadline,
                                        projectTask.CreatedAt);
     }

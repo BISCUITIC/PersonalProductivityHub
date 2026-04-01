@@ -14,9 +14,8 @@ public sealed record ProjectTaskResponse
     string? Description,
 
     [Required]
-    string Status,
-
-    [Required]
+    int Status,
+    
     DateTime? Deadline,
 
     [Required]

@@ -1,9 +1,13 @@
 import { apiClient } from "./ApiClient";
 import { handleApiError } from "../api/HandleApiError"
-import type { ProjectResponse, UpdateProjectRequest, CreateProjectRequest } from "../types/Project";
+
+import type {
+    ProjectResponse,
+    UpdateProjectRequest,
+    CreateProjectRequest
+} from "../types/Project";
 
 export async function getAllProjects(): Promise<ProjectResponse[]> {
-
     try {
         const response = await apiClient.get<ProjectResponse[]>("/projects");
 

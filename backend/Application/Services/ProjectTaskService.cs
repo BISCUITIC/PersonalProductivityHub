@@ -4,8 +4,6 @@ using Application.Dtos.ProjectTask;
 using Application.Mappers;
 using Domain.Contracts;
 using Domain.Entities;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Application.Services;
 
@@ -15,7 +13,7 @@ public class ProjectTaskService : IProjectTaskService
     private readonly IProjectRepository _projectRepository;
     private readonly ICurrentUser _user;
 
-    public ProjectTaskService(IProjectTaskRepository taskRepository, 
+    public ProjectTaskService(IProjectTaskRepository taskRepository,
                               IProjectRepository projectRepository,
                               ICurrentUser user)
     {
@@ -41,16 +39,16 @@ public class ProjectTaskService : IProjectTaskService
     {
         ProjectTask? task = await _taskRepository.GetByIdAsync(taskId, projectId, _user.Id);
 
-        if(task is null) 
+        if (task is null)
             return NotFound<ProjectTaskDto>();
-        
+
         return Result<ProjectTaskDto>.Success(task.ToProjectTaskDto(), ResultStatus.Success);
     }
 
     public async Task<Result<ProjectTaskDto>> AddTask(Guid projectId, CreateProjectTaskDto createDto)
     {
         Project? project = await _projectRepository.GetByIdAsync(projectId, _user.Id);
-        
+
         if (project is null)
             return ProjectNotFound<ProjectTaskDto>();
 
@@ -86,7 +84,7 @@ public class ProjectTaskService : IProjectTaskService
         if (updateDto.Name is not null)
             task.UpdateName(updateDto.Name);
 
-        if(updateDto.Description is not null)
+        if (updateDto.Description is not null)
             task.UpdateDescription(updateDto.Description);
 
         if (updateDto.Status is not null)
